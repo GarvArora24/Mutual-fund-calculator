@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TPS Mutual Fund Calculator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(ellipse at top, #0a0a23, #040417);
+      color: #d0f0ff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .particles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #00f5ff;
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float 6s linear infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(0.8);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      position: relative;
+      max-width: 600px;
+      margin: 6rem auto;
+      background: rgba(0, 31, 63, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 3rem 2rem;
+      border-radius: 25px;
+      box-shadow: 0 0 50px rgba(0, 191, 255, 0.1);
+      text-align: center;
+      z-index: 2;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      color: #00f0ff;
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #99ccff, #00f5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .typing-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #87d8ff;
+      height: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .cursor {
+      display: inline-block;
+      background: #87d8ff;
+      width: 2px;
+      height: 1.2rem;
+      animation: blink 0.7s steps(2, start) infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      to {
+        visibility: hidden;
+      }
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      margin: 12px 0;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.07);
+      color: #d0f0ff;
+    }
+
+    input::placeholder {
+      color: #95b6d8;
+    }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      background: #fff;
+      color: #0047ab;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #e6e6e6;
+    }
+
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      text-align: center;
+      background: #ffffff22;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #66ffcc;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      color: #ccc;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .chatgpt-credit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 0.5rem;
+    }
+
+    .chatgpt-credit img {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Main App -->
+  <div class="container">
+    <div class="logo">💰</div>
+    <h1>TPS Mutual Fund</h1>
+    <div class="typing-text">
+      <span id="typed"></span><span class="cursor">|</span>
+    </div>
+
+    <input type="number" id="monthly" placeholder="Monthly Investment (₹)" />
+    <input type="number" id="rate" placeholder="Expected Annual Return (%)" />
+    <input type="number" id="years" placeholder="Time Period (Years)" />
+    <button onclick="calculateSIP()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Created by <strong>Garv, Ahmad, Atharv, Vansh & Ishmas</strong>
+    <div class="chatgpt-credit">
+      Designed by ChatGPT
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Logo" />
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Typing effect
+    const phrases = [
+      "Plan your wealth with precision",
+      "Bringing your SIPs to life",
+
+      "Invest smart, live smarter"
+    ];
+
+    let i = 0, j = 0, currentPhrase = [], isDeleting = false;
+
+    function loopTyping() {
+      const typed = document.getElementById("typed");
+      typed.innerHTML = currentPhrase.join("");
+
+      if (i < phrases.length) {
+        if (!isDeleting && j <= phrases[i].length) {
+          currentPhrase.push(phrases[i][j]);
+          j++;
+        }
+
+        if (isDeleting && j > 0) {
+          currentPhrase.pop();
+          j--;
+        }
+
+        if (j === phrases[i].length) isDeleting = true;
+        if (isDeleting && j === 0) {
+          currentPhrase = [];
+          isDeleting = false;
+          i++;
+          if (i === phrases.length) i = 0;
+        }
+      }
+
+      const speed = isDeleting ? 40 : 100;
+      setTimeout(loopTyping, speed);
+    }
+
+    loopTyping();
+
+    // SIP calculator
+    function calculateSIP() {
+      const P = parseFloat(document.getElementById('monthly').value);
+      const r = parseFloat(document.getElementById('rate').value) / 100 / 12;
+      const n = parseFloat(document.getElementById('years').value) * 12;
+
+      if (isNaN(P) || isNaN(r) || isNaN(n)) {
+        document.getElementById('result').innerText = 'Please enter valid inputs.';
+        return;
+      }
+
+      const futureValue = P * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+      const invested = P * n;
+      const gain = futureValue - invested;
+
+      document.getElementById('result').innerHTML = `
+        <strong>Total Invested:</strong> ₹${invested.toFixed(0)}<br>
+        <strong>Estimated Returns:</strong> ₹${gain.toFixed(0)}<br>
+        <strong>Total Value:</strong> ₹${futureValue.toFixed(0)}
+      `;
+    }
+
+    // Generate floating particles
+    const particleContainer = document.getElementById("particles");
+    for (let i = 0; i < 50; i++) {
+      const particle = document.createElement("div");
+      particle.classList.add("particle");
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDuration = `${4 + Math.random() * 4}s`;
+      particle.style.animationDelay = `${Math.random() * 4}s`;
+      particleContainer.appendChild(particle);
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
